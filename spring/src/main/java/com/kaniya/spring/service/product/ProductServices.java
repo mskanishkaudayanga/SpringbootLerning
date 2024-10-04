@@ -1,13 +1,18 @@
 package com.kaniya.spring.service.product;
 
+import com.kaniya.spring.dto.ImageDto;
+import com.kaniya.spring.dto.ProductDto;
 import com.kaniya.spring.exception.ProductNotFoundException;
 import com.kaniya.spring.model.Category;
+import com.kaniya.spring.model.Image;
 import com.kaniya.spring.model.Product;
 import com.kaniya.spring.repository.CategoryRepository;
+import com.kaniya.spring.repository.ImageRepository;
 import com.kaniya.spring.repository.ProductRepository;
 import com.kaniya.spring.reqest.AddProductReqest;
 import com.kaniya.spring.reqest.ProductUpadateReqest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 
@@ -19,6 +24,8 @@ import java.util.Optional;
 public class ProductServices implements  IProductServices {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private  final ModelMapper modelMapper;
+    private final ImageRepository imageRepository;
 
     @Override
     public Product addProduct(AddProductReqest request) {
@@ -36,13 +43,13 @@ public class ProductServices implements  IProductServices {
     }
 
 
-    private  Product createProduct(AddProductReqest reqest, Category category) {
+    private  Product createProduct(AddProductReqest request, Category category) {
         return new Product(
-                reqest.getName(),
-                reqest.getBrand(),
-                reqest.getPrice(),
-                reqest.getInventory(),
-                reqest.getDescription(),
+                request.getName(),
+                request.getBrand(),
+                request.getPrice(),
+                request.getInventory(),
+                request.getDescription(),
                 category
         );
     }
@@ -113,4 +120,22 @@ public class ProductServices implements  IProductServices {
     public long countProductsByBrandAndName(String brand, String name) {
         return productRepository.countByBrandAndName(brand,name);
     }
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products){
+        return products.stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public ProductDto convertToDto(Product product) {
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map(image -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
+    }
+
+
 }

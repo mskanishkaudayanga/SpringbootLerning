@@ -1,5 +1,6 @@
 package com.kaniya.spring.service.product;
 
+import com.kaniya.spring.dto.ProductDto;
 import com.kaniya.spring.model.Product;
 import com.kaniya.spring.reqest.AddProductReqest;
 import com.kaniya.spring.reqest.ProductUpadateReqest;
@@ -19,4 +20,7 @@ public interface IProductServices {
     List<Product> getProductsByBrandAndName(String brand, String name);
     long countProductsByBrandAndName(String brand, String name);
 
+    List<ProductDto> getConvertedProducts(List<Product> products);
+
+    ProductDto convertToDto(Product product);
 }
