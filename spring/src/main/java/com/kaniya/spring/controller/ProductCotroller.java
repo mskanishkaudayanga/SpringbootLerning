@@ -1,5 +1,6 @@
 package com.kaniya.spring.controller;
 
+import com.kaniya.spring.dto.ProductDto;
 import com.kaniya.spring.exception.ProductNotFoundException;
 import com.kaniya.spring.exception.ResouceNotFoundException;
 import com.kaniya.spring.model.Product;
@@ -26,7 +27,8 @@ public class ProductCotroller {
     public ResponseEntity<ApiResponse> getAllProduct(){
         try {
             List<Product> products = productServices.getAllProducts();
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            List<ProductDto> convertProducts =productServices.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("Found", convertProducts));
         } catch (Exception e) {
             return  ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(),null));
         }
@@ -36,6 +38,7 @@ public class ProductCotroller {
     public ResponseEntity<ApiResponse> getProductById(@PathVariable int id){
         try {
             Product product = productServices.getProductById(id);
+
             return ResponseEntity.ok(new ApiResponse("Found", product));
         } catch (ProductNotFoundException e) {
            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(),null));
@@ -58,7 +61,8 @@ public class ProductCotroller {
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody ProductUpadateReqest products , @PathVariable  long productId){
         try {
             Product theProduct =productServices.updateProduct(products,productId);
-            return ResponseEntity.ok(new ApiResponse("Updated", theProduct));
+            ProductDto convertProduct = productServices.convertToDto(theProduct);
+            return ResponseEntity.ok(new ApiResponse("Updated", convertProduct));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(),null));
         }
